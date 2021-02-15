@@ -9,7 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using NCodeWebAPI.Data;
+//using NCodeWebAPI.Data;
 
 namespace NCodeWebAPI
 {
@@ -18,12 +18,13 @@ namespace NCodeWebAPI
         public static async Task Main(string[] args)
         {
             var host = CreateWebHostBuilder(args).Build();
-            using (var serviceScope = host.Services.CreateScope())
-            {
-                var dbContext = serviceScope.ServiceProvider.GetRequiredService<DataContext>();
-                await dbContext.Database.MigrateAsync();
 
-            }
+            //using (var serviceScope = host.Services.CreateScope())
+            //{
+            //    //var dbContext = serviceScope.ServiceProvider.GetRequiredService<DataContext>();
+            //    //await dbContext.Database.MigrateAsync();
+
+            //}
             await host.RunAsync();
         }
 
