@@ -8,5 +8,11 @@ namespace NCodeWebAPI.Options
     public class MongoDbSettings
     {
         public string connectionUrl { get; set; }
+        public string databaseName { get; set; }
+
+        public string userCollectionName { get; set; }
+
+        public string tokenCollectionName { get; set; }
+
     }
 }

@@ -20,6 +20,7 @@
     <Compile Remove="Installers\DBInstaller.cs" />
     <Compile Remove="Services\IdentityService.cs" />
     <Compile Remove="Services\IPostService.cs" />
+    <Compile Remove="Services\MongoPostService.cs" />
     <Compile Remove="Services\PostService.cs" />
   </ItemGroup>
 

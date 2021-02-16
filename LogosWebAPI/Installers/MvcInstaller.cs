@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Identity;
 using NCodeWebAPI.Options;
 using NCodeWebAPI.Services;
 
@@ -22,13 +23,15 @@ namespace NCodeWebAPI.Installers
             services.AddSingleton(jwtSettings);
 
             services.AddScoped<IIdentityService, MongoIdentityService>();
+          
             services.AddCors(options =>
             {
                 options.AddDefaultPolicy(builder =>
                 {
-                    builder.WithOrigins(configuration.GetSection("AllowedOrigins").Get<string[]>());
+                    //builder.WithOrigins(configuration.GetSection("AllowedOrigins").Get<string[]>());
                     builder.AllowAnyHeader();
                     builder.AllowAnyMethod();
+                    builder.AllowAnyOrigin();
                 });
             });
 
