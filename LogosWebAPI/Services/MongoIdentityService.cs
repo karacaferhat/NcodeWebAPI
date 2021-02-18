@@ -19,15 +19,15 @@ namespace NCodeWebAPI.Services
         private readonly JwtSettings _jwtSettings;
         private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly IMongoCollection<RefreshToken> _tokenCollection;
-        private readonly IMongoCollection<ApplicationUser> _userCollection;
+        
 
-        public MongoIdentityService(UserManager<ApplicationUser> userManager, JwtSettings jwtSettings, TokenValidationParameters tokenValidationParameters, IMongoCollection<RefreshToken> tokenCollection, IMongoCollection<ApplicationUser> userCollection)
+        public MongoIdentityService(UserManager<ApplicationUser> userManager, JwtSettings jwtSettings, TokenValidationParameters tokenValidationParameters, IMongoCollection<RefreshToken> tokenCollection)
         {
             _userManager = userManager;
             _jwtSettings = jwtSettings;
             _tokenValidationParameters = tokenValidationParameters;
             _tokenCollection = tokenCollection;
-            _userCollection = userCollection;
+         
 
         }
         public async Task<AuthanticationResult> LoginAsync(string email, string password)
@@ -37,7 +37,7 @@ namespace NCodeWebAPI.Services
             {
                 return new AuthanticationResult
                 {
-                    Errors = new[] { "User does not exists" }
+                    Errors = new[] { "Kullanıcı bulunamadı" }
                 };
 
             }
@@ -46,7 +46,7 @@ namespace NCodeWebAPI.Services
             {
                 return new AuthanticationResult
                 {
-                    Errors = new[] { "Username or password  error" }
+                    Errors = new[] { "Kullanıcı adı yada şifre hatalı" }
                 };
 
             }
@@ -60,7 +60,7 @@ namespace NCodeWebAPI.Services
             var validatedToken = GetPrincipalFromToken(token);
             if (validatedToken == null)
             {
-                return new AuthanticationResult { Errors = new[] { "Invalid Token" } };
+                return new AuthanticationResult { Errors = new[] { "Geçersiz Token" } };
             }
             var expiryDateUnix =
                 long.Parse(validatedToken.Claims.Single(x => x.Type == JwtRegisteredClaimNames.Exp).Value);
@@ -74,7 +74,7 @@ namespace NCodeWebAPI.Services
             {
                 return new AuthanticationResult
                 {
-                    Errors = new[] { "This Token has not expired yet" }
+                    Errors = new[] { "Token aktif" }
                 };
             }
 
@@ -89,7 +89,7 @@ namespace NCodeWebAPI.Services
             {
                 return new AuthanticationResult
                 {
-                    Errors = new[] { "This refresh token does not exists" }
+                    Errors = new[] { "Refresh token does not exists" }
                 };
             }
 
@@ -134,15 +134,15 @@ namespace NCodeWebAPI.Services
             return await GenerateAuthenticationResultForUserAsync(user);
         }
 
-        public async Task<AuthanticationResult> RegisterAsync(string email, string password, string city, DateTime dateOfBirth,string instrument)
+        public async Task<AuthanticationResult> RegisterAsync(string email, string password, string city, DateTime dateOfBirth,string instrument,string name,string surname)
         {
-
+            
             var existingUser = await _userManager.FindByEmailAsync(email);
             if (existingUser != null)
             {
                 return new AuthanticationResult
                 {
-                    Errors = new[] { "User with this email already exists" }
+                    Errors = new[] { "Bu email adresine sahip kullancı zaten mevcut" }
                 };
 
             }
@@ -152,7 +152,10 @@ namespace NCodeWebAPI.Services
                 UserName = email,
                 City = city,
                 DateOfBirth = dateOfBirth,
-                Instrument = instrument
+                Instrument = instrument,
+                Name = name,
+                Surname = surname,
+                Profile = "F"
 
             };
             var createdUser = await _userManager.CreateAsync(newUser, password);
@@ -206,7 +209,10 @@ namespace NCodeWebAPI.Services
             {
                 Success = true,
                 Token = tokenHandler.WriteToken(token),
-                RefreshToken = refreshToken.Token
+                RefreshToken = refreshToken.Token,
+                Name = user.Name,
+                Surname = user.Surname,
+                Profile=user.Profile
             };
         }
 

@@ -30,7 +30,7 @@ namespace NCodeWebAPI.Controllers.v1
                     Errors = ModelState.Values.SelectMany(x => x.Errors.Select(xx => xx.ErrorMessage))
                 });
             }
-            var authResponse = await _identityService.RegisterAsync(request.Email, request.Password,request.City,request.DateOfBirth,request.Instrument);
+            var authResponse = await _identityService.RegisterAsync(request.Email, request.Password,request.City,request.DateOfBirth,request.Instrument,request.Name,request.Surname);
             if (!authResponse.Success)
             {
                 return BadRequest( new AuthFailResponse
@@ -40,7 +40,10 @@ namespace NCodeWebAPI.Controllers.v1
             }
             return Ok(new AuthSuccessResponse {
                 Token = authResponse.Token,
-                RefreshToken = authResponse.RefreshToken
+                RefreshToken = authResponse.RefreshToken,
+                Name = authResponse.Name,
+                Surname = authResponse.Surname,
+                Profile = authResponse.Profile
             } );
         }
 
@@ -66,13 +69,17 @@ namespace NCodeWebAPI.Controllers.v1
             return Ok(new AuthSuccessResponse
             {
                 Token = authResponse.Token,
-                RefreshToken=authResponse.RefreshToken
+                RefreshToken=authResponse.RefreshToken,
+                Name = authResponse.Name,
+                Surname =authResponse.Surname,
+                Profile= authResponse.Profile
+
             });
         }
 
 
         [HttpPost(ApiRoutes.Identity.Refresh)]
-        public async Task<IActionResult> Login([FromBody] RefreshTokenRequest request)
+        public async Task<IActionResult> Refresh([FromBody] RefreshTokenRequest request)
         {
             if (!ModelState.IsValid)
             {
@@ -92,7 +99,10 @@ namespace NCodeWebAPI.Controllers.v1
             return Ok(new AuthSuccessResponse
             {
                 Token = authResponse.Token,
-                RefreshToken = authResponse.RefreshToken
+                RefreshToken = authResponse.RefreshToken,
+                Name = authResponse.Name,
+                Surname = authResponse.Surname,
+                Profile = authResponse.Profile
             });
         }
     }

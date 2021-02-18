@@ -10,9 +10,6 @@ namespace NCodeWebAPI.Options
         public string connectionUrl { get; set; }
         public string databaseName { get; set; }
 
-        public string userCollectionName { get; set; }
-
-        public string tokenCollectionName { get; set; }
 
     }
 }

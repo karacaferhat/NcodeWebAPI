@@ -16,6 +16,8 @@ namespace NCodeWebAPI.Controllers.v1.Requests
         public DateTime DateOfBirth { get; set; }
         
         public string Instrument { get; set; }
+        public string Name { get; set; }
+        public string Surname { get; set; }
 
     }
 }
