@@ -20,7 +20,6 @@
     <Compile Remove="Installers\DBInstaller.cs" />
     <Compile Remove="Services\IdentityService.cs" />
     <Compile Remove="Services\IPostService.cs" />
-    <Compile Remove="Services\MongoPostService.cs" />
     <Compile Remove="Services\PostService.cs" />
   </ItemGroup>
 
@@ -28,6 +27,7 @@
   <ItemGroup>        
     <PackageReference Include="AspNetCore.Identity.Mongo" Version="8.0.0" />        
     <PackageReference Include="AspNetCore.Identity.MongoDbCore" Version="2.1.1" />        
+    <PackageReference Include="Iyzipay" Version="2.1.39" />        
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.0.0" />        
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.0.0" />        
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="3.0.0" />        

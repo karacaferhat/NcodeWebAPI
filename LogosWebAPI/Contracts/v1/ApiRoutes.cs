@@ -30,6 +30,9 @@ namespace NCodeWebAPI.Contracts.v1
             public const string Login = Base + "/identity/login";
             public const string Register = Base + "/identity/register";
             public const string Refresh = Base + "/identity/refresh";
+            public const string UpdateUserInfo = Base + "/identity/updateUserInfo";
+            public const string Reset = Base + "/identity/reset";
+            public const string Change = Base + "/identity/change";
         }
         public static class Mongo
         {
@@ -38,5 +41,12 @@ namespace NCodeWebAPI.Contracts.v1
     
         }
 
+        public static class Payment
+        {
+            public const string Post = Base + "/payment/post";
+            public const string PostCallback = Base + "/payment/postCallBack";
+
+
+        }
     }
 }

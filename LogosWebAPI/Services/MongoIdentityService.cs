@@ -5,8 +5,12 @@ using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Linq;
+using System.Net;
+using System.Net.Mail;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using NCodeWebAPI.Controllers.v1.Responses;
 using NCodeWebAPI.Domain;
 using NCodeWebAPI.Options;
 
@@ -19,17 +23,50 @@ namespace NCodeWebAPI.Services
         private readonly JwtSettings _jwtSettings;
         private readonly TokenValidationParameters _tokenValidationParameters;
         private readonly IMongoCollection<RefreshToken> _tokenCollection;
-        
+        private readonly IMailService _mailService;
+        private readonly SmtpSettings _smtpSettings;
 
-        public MongoIdentityService(UserManager<ApplicationUser> userManager, JwtSettings jwtSettings, TokenValidationParameters tokenValidationParameters, IMongoCollection<RefreshToken> tokenCollection)
+
+        public MongoIdentityService(UserManager<ApplicationUser> userManager, JwtSettings jwtSettings, TokenValidationParameters tokenValidationParameters, IMongoCollection<RefreshToken> tokenCollection, IMailService mailService)
         {
             _userManager = userManager;
             _jwtSettings = jwtSettings;
             _tokenValidationParameters = tokenValidationParameters;
             _tokenCollection = tokenCollection;
-         
-
+            _mailService = mailService;
+        
         }
+
+        public async Task<ChangePasResponse> ChangeAsync(string email, string p_old, string p_new)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return new ChangePasResponse
+                {
+                    IsSuccesfull = false,
+                    Errors = new[] { "Kullanıcı bulunamadı" }
+                };
+
+            }
+
+            var changedUser= await _userManager.ChangePasswordAsync(user,p_old,p_new);
+
+            if (!changedUser.Succeeded)
+            {
+                return new ChangePasResponse
+                {
+                    Errors = changedUser.Errors.Select(x => x.Description)
+                };
+            }
+
+            return new ChangePasResponse
+            {
+                IsSuccesfull = true
+                
+            };
+        }
+
         public async Task<AuthanticationResult> LoginAsync(string email, string password)
         {
             var user = await _userManager.FindByEmailAsync(email);
@@ -172,6 +209,96 @@ namespace NCodeWebAPI.Services
 
         }
 
+        public async Task<ResetPasResponse> ResetAsync(string email)
+        {
+            var existingUser = await _userManager.FindByEmailAsync(email);
+            if (existingUser == null)
+            {
+                return new ResetPasResponse
+                {
+                    IsSuccesfull = false,
+                    Errors = new[] { "Bu email adresine sahip kullancı bulunamadı" }
+                };
+
+            }
+            var resetPassToken =   _userManager.GeneratePasswordResetTokenAsync(existingUser).Result;
+            var newpass="Logs2!" + DateTime.Now.ToString("mmss");
+            var body =  newpass;
+
+   
+           
+
+
+            var identityRes= await _userManager.ResetPasswordAsync(existingUser, resetPassToken, newpass);
+           if (!identityRes.Succeeded)
+           {
+               return new ResetPasResponse
+               {
+                   IsSuccesfull = false,
+                   Errors = identityRes.Errors.Select(x => x.Description) 
+
+               };
+            }
+
+           var mailresponse = await _mailService.SendMailAsync(email, "Şifre Sıfırlama", newpass);
+
+           if (!mailresponse.Success)
+           {
+               return new ResetPasResponse
+               {
+                   IsSuccesfull = false,
+                   Errors = new[] { mailresponse.Error }
+               };
+           }
+
+
+            return new ResetPasResponse
+               {
+                   IsSuccesfull = true,
+                   Errors=new[] { body }
+
+               };
+
+
+        }
+
+        public async Task<UserInfoUpdateResponse> UpdateUserInfoAsync(string email, string city, DateTime dateOfBirth, string instrument, string name, string surname)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return new UserInfoUpdateResponse
+                {
+                    IsSuccesfull = false,
+                    Errors = new[] { "Kullanıcı bulunamadı" }
+                };
+
+            }
+
+            user.City = city;
+            user.Instrument = instrument;
+            user.Name = name;
+            user.Surname = surname;
+            user.DateOfBirth = dateOfBirth;
+
+            await _userManager.UpdateAsync(user);
+            return new UserInfoUpdateResponse
+            {
+                IsSuccesfull = true,
+               userInfo = new UserInfo()
+               {
+                   Name = user.Name,
+                   Surname= user.Surname,
+                   City = user.City,
+                   Instrument= user.Instrument,
+                   DateOfBirth = user.DateOfBirth,
+                   EMail= user.Email,
+                   Profile = user.Profile
+               }
+            };
+
+        }
+
         private async Task<AuthanticationResult> GenerateAuthenticationResultForUserAsync(ApplicationUser user)
         {
 
@@ -201,7 +328,7 @@ namespace NCodeWebAPI.Services
             };
             await _tokenCollection.InsertOneAsync(refreshToken);
 
-              
+
 
 
 
@@ -210,9 +337,16 @@ namespace NCodeWebAPI.Services
                 Success = true,
                 Token = tokenHandler.WriteToken(token),
                 RefreshToken = refreshToken.Token,
-                Name = user.Name,
-                Surname = user.Surname,
-                Profile=user.Profile
+                userInfo = new UserInfo()
+                {
+                    Name = user.Name,
+                    Surname = user.Surname,
+                    Profile = user.Profile,
+                    City = user.City,
+                    DateOfBirth = user.DateOfBirth,
+                    Instrument = user.Instrument,
+                    EMail = user.Email
+                }
             };
         }
 

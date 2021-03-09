@@ -3,6 +3,8 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Mail;
 using System.Threading.Tasks;
 using AspNetCore.Identity.MongoDbCore.Models;
 using Microsoft.AspNetCore.Identity;
@@ -23,6 +25,9 @@ namespace NCodeWebAPI.Installers
             var mongoDbSettings = new MongoDbSettings();
             configuration.Bind(nameof(mongoDbSettings), mongoDbSettings);
             services.AddSingleton(mongoDbSettings);
+
+            
+
             var client = new MongoClient(mongoDbSettings.connectionUrl);
             var database = client.GetDatabase(mongoDbSettings.databaseName);
    
@@ -51,7 +56,7 @@ namespace NCodeWebAPI.Installers
                     .AddErrorDescriber<CustomIdentityErrorDescriber>()
                     .AddDefaultTokenProviders();
 
-            //services.AddScoped<IMongoPostService, MongoPostService>();
+            services.AddScoped<IMongoPostService, MongoPostService>();
            
         }
     }

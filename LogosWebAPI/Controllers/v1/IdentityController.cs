@@ -10,6 +10,7 @@ using NCodeWebAPI.Services;
 
 namespace NCodeWebAPI.Controllers.v1
 {
+
     public class IdentityController : Controller
     {
         private readonly IIdentityService _identityService;
@@ -41,9 +42,8 @@ namespace NCodeWebAPI.Controllers.v1
             return Ok(new AuthSuccessResponse {
                 Token = authResponse.Token,
                 RefreshToken = authResponse.RefreshToken,
-                Name = authResponse.Name,
-                Surname = authResponse.Surname,
-                Profile = authResponse.Profile
+                userInfo = authResponse.userInfo
+
             } );
         }
 
@@ -70,9 +70,7 @@ namespace NCodeWebAPI.Controllers.v1
             {
                 Token = authResponse.Token,
                 RefreshToken=authResponse.RefreshToken,
-                Name = authResponse.Name,
-                Surname =authResponse.Surname,
-                Profile= authResponse.Profile
+                userInfo = authResponse.userInfo
 
             });
         }
@@ -100,9 +98,96 @@ namespace NCodeWebAPI.Controllers.v1
             {
                 Token = authResponse.Token,
                 RefreshToken = authResponse.RefreshToken,
-                Name = authResponse.Name,
-                Surname = authResponse.Surname,
-                Profile = authResponse.Profile
+                userInfo = authResponse.userInfo
+            });
+        }
+
+
+        [HttpPost(ApiRoutes.Identity.UpdateUserInfo)]
+        public async Task<IActionResult> UpdateUser([FromBody] UserInfoUpdateRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new UserInfoUpdateResponse
+                {
+                    IsSuccesfull = false,
+                    Errors = ModelState.Values.SelectMany(x => x.Errors.Select(xx => xx.ErrorMessage))
+                });
+            }
+           
+            var authResponse = await _identityService.UpdateUserInfoAsync(request.Email,request.City,request.DateOfBirth,request.Instrument,request.Name,request.Surname);
+            if (!authResponse.IsSuccesfull)
+            {
+                return BadRequest(new UserInfoUpdateResponse
+                {
+                    IsSuccesfull = false,
+                    Errors = authResponse.Errors
+                });
+            }
+            return Ok(new UserInfoUpdateResponse
+            {
+                IsSuccesfull = true,
+                userInfo = authResponse.userInfo
+
+            });
+        }
+
+        [HttpPost(ApiRoutes.Identity.Reset)]
+        public async Task<IActionResult> Reset([FromBody] ResetPasRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new ResetPasResponse()
+                {
+                    IsSuccesfull = false,
+                    Errors = ModelState.Values.SelectMany(x => x.Errors.Select(xx => xx.ErrorMessage))
+                });
+            }
+
+            
+           var response= await _identityService.ResetAsync(request.Email);
+           if (!response.IsSuccesfull)
+           {
+               return BadRequest(new ResetPasResponse
+               {
+                   IsSuccesfull = false,
+                   Errors = response.Errors
+
+               });
+            }
+            return Ok(new ResetPasResponse
+            {
+                IsSuccesfull = true
+               
+
+            });
+        }
+
+        [HttpPost(ApiRoutes.Identity.Change)]
+        public async Task<IActionResult> Change([FromBody] ChangePasRequest request)
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(new ChangePasResponse
+                {
+                    IsSuccesfull = false,
+                    Errors = ModelState.Values.SelectMany(x => x.Errors.Select(xx => xx.ErrorMessage))
+                });
+            }
+
+            var chgResponse = await _identityService.ChangeAsync(request.Email, request.Pas_old, request.Pas_new);
+            if (!chgResponse.IsSuccesfull)
+            {
+                return BadRequest(new ChangePasResponse
+                {
+                    IsSuccesfull = false,
+                    Errors = chgResponse.Errors
+                });
+            }
+            return Ok(new ChangePasResponse
+            {
+                IsSuccesfull = true
+                
             });
         }
     }

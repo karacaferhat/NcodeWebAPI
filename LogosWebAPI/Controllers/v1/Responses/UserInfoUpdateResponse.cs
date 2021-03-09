@@ -6,16 +6,10 @@ using System.Threading.Tasks;
 
 namespace NCodeWebAPI.Controllers.v1.Responses
 {
-    public class AuthSuccessResponse
+    public class UserInfoUpdateResponse
     {
-        public string Token { get; set; }
-
-        public string RefreshToken{ get; set; }
-
+        public Boolean IsSuccesfull { get; set; }
+        public IEnumerable<string> Errors { get; set; }
         public UserInfo userInfo { get; set; }
-
-       
-
-
-}
+    }
 }

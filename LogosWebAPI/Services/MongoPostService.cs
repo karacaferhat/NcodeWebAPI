@@ -18,8 +18,8 @@ namespace NCodeWebAPI.Services
         {
             _mongoDbSettings = mongoDbSettings;
             var client = new MongoClient(mongoDbSettings.connectionUrl);
-            var database = client.GetDatabase("WEBAPI");
-             _mongoPosts = database.GetCollection<MongoPost>("WEBAPI");
+            var database = client.GetDatabase(mongoDbSettings.databaseName);
+             _mongoPosts = database.GetCollection<MongoPost>("Posts");
           
         }
 

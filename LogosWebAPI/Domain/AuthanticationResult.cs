@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using NCodeWebAPI.Controllers.v1.Responses;
 
 namespace NCodeWebAPI.Domain
 {
@@ -9,12 +10,10 @@ namespace NCodeWebAPI.Domain
     {
         public string Token { get; set; }
         public string RefreshToken { get; set; }
-        public string Name { get; set; }
-        public string Surname { get; set; }
-        public string Profile { get; set; }
+        public UserInfo userInfo { get; set; }
         public bool Success { get; set; }
         public IEnumerable<string> Errors { get; set; }
 
-
+      
     }
 }

@@ -10,6 +10,8 @@ using NCodeWebAPI.Controllers.v1.Requests;
 using NCodeWebAPI.Domain;
 using NCodeWebAPI.Services;
 
+
+
 namespace NCodeWebAPI.Controllers.v1
 {
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
@@ -25,7 +27,8 @@ namespace NCodeWebAPI.Controllers.v1
         [HttpGet(ApiRoutes.Mongo.Get)]
         public async Task<IActionResult> GetAll()
         {
-            return Ok(await _mongoPostService.GetPostsAsync());
+         
+           return Ok(await _mongoPostService.GetPostsAsync());
         }
 
 
@@ -49,6 +52,8 @@ namespace NCodeWebAPI.Controllers.v1
             return Ok();
 
         }
+
+       
 
     }
 }
