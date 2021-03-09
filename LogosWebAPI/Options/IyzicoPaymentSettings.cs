@@ -12,6 +12,7 @@ namespace NCodeWebAPI.Options
         public string Url { get; set; }
         public string DefaultBuyerAddress { get; set; }
         public string DefaultBuyerId { get; set; }
+        public string CallbackUrl { get; set; }
 
     }
 }

@@ -43,7 +43,6 @@ namespace NCodeWebAPI.Controllers.v1
                 Token = authResponse.Token,
                 RefreshToken = authResponse.RefreshToken,
                 userInfo = authResponse.userInfo
-
             } );
         }
 

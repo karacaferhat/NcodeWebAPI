@@ -44,7 +44,7 @@ namespace NCodeWebAPI.Services
                 Currency = Currency.TRY.ToString(),
                 BasketId = basketId,
                 PaymentGroup = PaymentGroup.PRODUCT.ToString(),
-                CallbackUrl = "https://www.logossanat.com/callback"
+                CallbackUrl = _settings.CallbackUrl
             };
 
             List<int> enabledInstallments = new List<int>();

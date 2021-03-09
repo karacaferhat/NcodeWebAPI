@@ -28,9 +28,6 @@ namespace NCodeWebAPI.Controllers.v1
         [HttpPost(ApiRoutes.Payment.Post)]
         public async Task<IActionResult> PostPayment([FromBody] PaymentRequest paymentRequest)
         {
-          
-            
-           
             PaymentPostRequest req = new PaymentPostRequest()
             {
 
@@ -43,9 +40,9 @@ namespace NCodeWebAPI.Controllers.v1
                 Quantity = paymentRequest.Quantity,
             };
 
-          PaymentPostResponse serviceResponse =  await _paymentService.PostPaymentAsync(req);
+           PaymentPostResponse serviceResponse =  await _paymentService.PostPaymentAsync(req);
 
-          if (serviceResponse.Success)
+           if (serviceResponse.Success)
           {
               return Ok( new PaymentResponse()
               {
@@ -55,7 +52,7 @@ namespace NCodeWebAPI.Controllers.v1
               });
             }
 
-          return BadRequest(new PaymentResponse()
+           return BadRequest(new PaymentResponse()
           {
               Success = false,
               HtmlContent = serviceResponse.HtmlContent,
