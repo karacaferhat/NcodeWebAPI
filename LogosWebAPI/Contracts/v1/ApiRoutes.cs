@@ -44,7 +44,8 @@ namespace NCodeWebAPI.Contracts.v1
         public static class Payment
         {
             public const string Post = Base + "/payment/post";
-            public const string PostCallback = Base + "/payment/postCallBack";
+            public const string CheckPayment = Base + "/payment/checkPayment";
+            public const string FetchPayment = Base + "/payment/FetchPayment/{payToken}";
 
 
         }

@@ -28,7 +28,7 @@ namespace NCodeWebAPI.Installers
             {
                 options.AddDefaultPolicy(builder =>
                 {
-                    //builder.WithOrigins(configuration.GetSection("AllowedOrigins").Get<string[]>());
+                   
                     builder.AllowAnyHeader();
                     builder.AllowAnyMethod();
                     builder.AllowAnyOrigin();

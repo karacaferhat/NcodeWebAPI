@@ -18,33 +18,93 @@ namespace NCodeWebAPI.Services
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private IyzicoPaymentSettings _settings;
-
-        public PaymentService(UserManager<ApplicationUser> userManager,IyzicoPaymentSettings settings)
+        private IMongoPostService _mongoService;
+        public PaymentService(UserManager<ApplicationUser> userManager,IyzicoPaymentSettings settings, IMongoPostService mongoService)
         {
             _settings = settings;
             _userManager = userManager;
+            _mongoService = mongoService;
+        }
+
+        public async Task<PaymentCheckResultResponse> PaymentCheckResultAsync(PaymentCheckResultRequest request)
+        {
+            RetrieveCheckoutFormRequest r = new RetrieveCheckoutFormRequest();
+            r.ConversationId = r.ConversationId;
+            r.Token = request.payToken;
+
+            Iyzipay.Options options = new Iyzipay.Options()
+            {
+                ApiKey = _settings.ApiKey,
+                BaseUrl = _settings.Url,
+                SecretKey = _settings.Secret
+            };
+            
+            CheckoutForm checkoutForm =  CheckoutForm.Retrieve(r, options);
+            if (checkoutForm.ErrorCode == null)
+            {
+                PaymentDocument post = new PaymentDocument
+                {
+                  Email = checkoutForm.BasketId,
+                  ErrorCode = checkoutForm.ErrorCode,
+                  ErrorMessage = checkoutForm.ErrorMessage,
+                  PaymentId = checkoutForm.PaymentId,
+                  PaymentStatus = checkoutForm.PaymentStatus,
+                  Status = checkoutForm.Status,
+                  PaidPrice = checkoutForm.PaidPrice,
+                  SysDate = DateTime.Now,
+                  UserId = checkoutForm.BasketId,
+                };
+                await _mongoService.CreatePaymentDocumentAsync(post);
+
+                return new PaymentCheckResultResponse()
+                {
+                    error = "",
+                    success = true,
+                    lastFourDigits = checkoutForm.LastFourDigits,
+                    paymentId = checkoutForm.PaymentId,
+                    paymentStatus= checkoutForm.PaymentStatus
+                };
+            }
+
+            return new PaymentCheckResultResponse()
+            {
+                error = checkoutForm.ErrorCode,
+                errorMessage =  checkoutForm.ErrorMessage,
+                success = false,
+                lastFourDigits = checkoutForm.LastFourDigits,
+                paymentId = checkoutForm.PaymentId,
+                paymentStatus = checkoutForm.PaymentStatus
+            };
+
+
+
         }
 
         public async Task<PaymentPostResponse> PostPaymentAsync(PaymentPostRequest paymentRequest)
         {
             var user = await _userManager.FindByEmailAsync(paymentRequest.Email);
 
-            string basketId = Guid.NewGuid().ToString();
+            string ConversationId = Guid.NewGuid().ToString();
+            decimal totalPrice = 0;
+            foreach (var item in paymentRequest.Items)
+            {
+                 totalPrice = totalPrice + item.Price;
+            }
 
-            decimal totalPrice= paymentRequest.Price;
+           
 
            
 
             CreateCheckoutFormInitializeRequest request = new CreateCheckoutFormInitializeRequest
             {
                 Locale = Locale.TR.ToString(),
-                ConversationId = basketId,
+                ConversationId = ConversationId,
                 Price = totalPrice.ToString(),
                 PaidPrice = totalPrice.ToString(),
                 Currency = Currency.TRY.ToString(),
-                BasketId = basketId,
+                BasketId = user.Email,
                 PaymentGroup = PaymentGroup.PRODUCT.ToString(),
-                CallbackUrl = _settings.CallbackUrl
+                CallbackUrl = _settings.CallbackUrl+"?conversationId="+ ConversationId
             };
 
             List<int> enabledInstallments = new List<int>();
@@ -91,15 +151,19 @@ namespace NCodeWebAPI.Services
 
             List<BasketItem> basketItems = new List<BasketItem>();
 
-            BasketItem firstBasketItem = new BasketItem
+            foreach (var item in paymentRequest.Items)
             {
-                Id = paymentRequest.ProductId,
-                Name = paymentRequest.ProductName,
-                Category1 = paymentRequest.ProductName,
-                ItemType = BasketItemType.PHYSICAL.ToString(),
-                Price = paymentRequest.Price.ToString()
-            };
-            basketItems.Add(firstBasketItem);
+                 BasketItem firstBasketItem = new BasketItem {
+                        Id = item.ProductId,
+                        Name = item.ProductName,
+                        Category1 = item.ProductName,
+                        ItemType = BasketItemType.PHYSICAL.ToString(),
+                        Price = item.Price.ToString()
+                 };
+
+                 basketItems.Add(firstBasketItem);
+            }
+           
 
 
 
@@ -114,34 +178,53 @@ namespace NCodeWebAPI.Services
             };
 
 
+            try {
+                CheckoutFormInitialize checkoutFormInitialize = CheckoutFormInitialize.Create(request, options);
 
-            CheckoutFormInitialize checkoutFormInitialize = CheckoutFormInitialize.Create(request, options);
+
+                if (checkoutFormInitialize.ErrorCode == null)
+                {
+                    return new PaymentPostResponse()
+                    {
+                        Error = null,
+                        Success = true,
+                        HtmlContent = checkoutFormInitialize.CheckoutFormContent,
+                        PaymentPageUrl = checkoutFormInitialize.PaymentPageUrl,
+                        ConversationId = checkoutFormInitialize.ConversationId,
+                        PaymentFormToken = checkoutFormInitialize.Token,
+                        details = checkoutFormInitialize
+                    };
 
 
-            if (checkoutFormInitialize.ErrorCode == null)
+
+                }
+
+
+                return new PaymentPostResponse()
+                {
+                    Error = checkoutFormInitialize.ErrorMessage,
+                    Success = false,
+                    HtmlContent = checkoutFormInitialize.CheckoutFormContent,
+                    PaymentPageUrl = checkoutFormInitialize.PaymentPageUrl,
+                    ConversationId = checkoutFormInitialize.ConversationId,
+                    PaymentFormToken = checkoutFormInitialize.Token,
+                    details = checkoutFormInitialize
+                };
+            }
+            catch (Exception ex)
             {
                 return new PaymentPostResponse()
                 {
-                    Error = null,
-                    Success = true,
-                    HtmlContent = checkoutFormInitialize.CheckoutFormContent,
-                    details = checkoutFormInitialize
+                    Error = ex.Message,
+                    Success = false
+
                 };
-
-
-
             }
 
-
-            return new PaymentPostResponse()
-            {
-                Error = checkoutFormInitialize.ErrorMessage,
-                Success = false,
-                HtmlContent = checkoutFormInitialize.CheckoutFormContent,
-                details = checkoutFormInitialize
-            };
+          
 
 
         }
+
     }
 }

@@ -12,6 +12,7 @@ namespace NCodeWebAPI.Services
 
     {
         private readonly IMongoCollection<MongoPost> _mongoPosts;
+        private readonly IMongoCollection<PaymentDocument> _paymentDocuments;
 
         private MongoDbSettings _mongoDbSettings;
         public MongoPostService(MongoDbSettings  mongoDbSettings )
@@ -20,7 +21,8 @@ namespace NCodeWebAPI.Services
             var client = new MongoClient(mongoDbSettings.connectionUrl);
             var database = client.GetDatabase(mongoDbSettings.databaseName);
              _mongoPosts = database.GetCollection<MongoPost>("Posts");
-          
+            _paymentDocuments = database.GetCollection<PaymentDocument>("PaymentDocuments");
+
         }
 
 
@@ -35,9 +37,10 @@ namespace NCodeWebAPI.Services
             return post;
         }
 
-      
-
-
-
+        public async Task<PaymentDocument> CreatePaymentDocumentAsync(PaymentDocument post)
+        {
+            await _paymentDocuments.InsertOneAsync(post);
+            return post;
+        }
     }
 }

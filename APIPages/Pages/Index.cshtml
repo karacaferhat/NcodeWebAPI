@@ -1,0 +1,95 @@
+﻿@page
+@using System.Net.Http
+@using System.Net.Http.Headers
+@using System.Security.Cryptography.Xml
+@using System.Collections
+@using System.Text.Json
+@using Domain
+@model IndexModel
+
+@{
+    var error = "";
+    var msg = "";
+    var paymentId = "";
+    PaymentCheckResponse paymentCheckResponse;
+    var payToken = "";
+    var conersationId = "";
+
+    try
+    {
+        paymentCheckResponse = new PaymentCheckResponse() {};
+
+        if (Request.Form != null)
+        {
+            var data = Request.Form.ToDictionary(x => x.Key, x => x.Value.ToString());
+
+            foreach (var item in data)
+            {
+                if (item.Key.Contains("token"))
+                {
+                    payToken = item.Value;
+                    conersationId = Request.Query["conversationId"].ToString();
+
+                    var url = "https://fsnetwebapi.azurewebsites.net/api/v1/payment/FetchPayment/" + payToken;
+
+
+
+                    HttpClient client = new HttpClient();
+                    var httpResponse = await client.GetAsync(url);
+
+                    if (!httpResponse.IsSuccessStatusCode)
+                    {
+                        throw new Exception("Cannot retrieve tasks");
+                    }
+
+                    var content = await httpResponse.Content.ReadAsStringAsync();
+                    msg = content;
+                    paymentCheckResponse = JsonSerializer.Deserialize<PaymentCheckResponse>(content);
+                    if (paymentCheckResponse.success == true)
+                    {
+                        msg = "İşlem başarılı teşekkür ederiz.";
+                        paymentId = paymentCheckResponse.paymentId;
+                    }
+                    else
+                    {
+                        msg = paymentCheckResponse.errorMessage;
+                    }
+
+
+                    client.Dispose();
+                }
+            
+            }
+        }
+       
+
+
+       
+        
+
+    }
+    catch (Exception e)
+    {
+        error = payToken +' '+ e.Message  ;
+    }
+
+}
+<div class="container headerTop clearfix">
+    <div class="logoArea">
+        <a href="http://www.logossanat.com"><img src="images/logossanat-logo.png" alt="Logos Sanat Logo"></a>
+    </div>
+    
+</div>
+<script>
+    function Go() {
+        document.location="http://www.logossanat.com"
+    }
+</script>
+<div class="textContainer">
+    <p>Ödeme İşlemi Sonucu:  <span id="msg">@msg</span></p>
+    <p>Ödeme İşlemi Takip No:  <span id="msg">@paymentId</span></p>
+    <p>@error</p>
+    
+    
+    <button class="btn-primary" onclick="Go();">Tamam</button>
+</div>

@@ -9,5 +9,6 @@ namespace NCodeWebAPI.Services
     public interface IPaymentService
     {
         Task<PaymentPostResponse> PostPaymentAsync(PaymentPostRequest request);
+        Task<PaymentCheckResultResponse> PaymentCheckResultAsync(PaymentCheckResultRequest request);
     }
 }

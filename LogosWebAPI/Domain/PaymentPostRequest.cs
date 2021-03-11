@@ -12,15 +12,19 @@ namespace NCodeWebAPI.Domain
         public string Email { get; set; }
 
         public string Ip { get; set; }
-        public string ProductName { get; set; }
-        public string ProductId { get; set; }
-
-        public Decimal Quantity { get; set; }
-
-        public Decimal Price { get; set; }
+        public List<PaymentPostRequestItem> Items { get; set; }
 
 
     }
+    public class PaymentPostRequestItem
+    {
+        public string ProductName { get; set; }
+        public string ProductId { get; set; }
 
-    
+        public decimal Quantity { get; set; }
+
+        public decimal Price { get; set; }
+    }
+
+
 }

@@ -9,6 +9,12 @@ namespace NCodeWebAPI.Controllers.v1.Requests
     {
         public string Email { get; set; }
         public string Ip { get; set; }
+        public List<PaymentRequestItem> Items { get; set; }
+
+}
+
+    public class PaymentRequestItem
+    {
         public string ProductName { get; set; }
         public string ProductId { get; set; }
 
@@ -16,6 +22,5 @@ namespace NCodeWebAPI.Controllers.v1.Requests
 
         public decimal Price { get; set; }
     }
-
    
 }

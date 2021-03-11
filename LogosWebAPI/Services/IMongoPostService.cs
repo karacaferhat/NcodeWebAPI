@@ -12,7 +12,9 @@ namespace NCodeWebAPI.Services
 
         Task<MongoPost> CreatePostAsync(MongoPost post);
 
-       
+        Task<PaymentDocument> CreatePaymentDocumentAsync(PaymentDocument post);
+
+
     }
 }
 
