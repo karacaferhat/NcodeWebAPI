@@ -3,18 +3,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace APIPages.Domain
+namespace NCodeWebAPI.Domain
 {
-    public class PaymentCheckResponse
+    public class PaymentCheckSubscriptionResultResponse
     {
         public bool success { get; set; }
         public string error { get; set; }
         public string errorMessage { get; set; }
-        public string paymentId { get; set; }
-        public string paymentStatus { get; set; }
-        public string lastFourDigits { get; set; }
-
         public string referenceCode { get; set; }
+        public string subscriptionStatus { get; set; }
+
         
     }
 }

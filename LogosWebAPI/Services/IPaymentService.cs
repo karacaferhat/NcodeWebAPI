@@ -10,5 +10,9 @@ namespace NCodeWebAPI.Services
     {
         Task<PaymentPostResponse> PostPaymentAsync(PaymentPostRequest request);
         Task<PaymentCheckResultResponse> PaymentCheckResultAsync(PaymentCheckResultRequest request);
+
+        Task<PaymentSubscriptionServiceResponse> PostSubscriptionPaymentAsync(PaymentSubscriptionServiceRequest request);
+
+        Task<PaymentCheckSubscriptionResultResponse> SubscriptionPaymentCheckResultAsync(PaymentCheckSubscriptionResultRequest request);
     }
 }

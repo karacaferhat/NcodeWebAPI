@@ -16,6 +16,8 @@ namespace NCodeWebAPI.Controllers.v1.Requests
     public class PaymentRequestItem
     {
         public string ProductName { get; set; }
+
+        public string Academy { get; set; }
         public string ProductId { get; set; }
 
         public decimal Quantity { get; set; }

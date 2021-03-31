@@ -14,6 +14,9 @@
     PaymentCheckResponse paymentCheckResponse;
     var payToken = "";
     var conersationId = "";
+    var email = "";
+    var productName = "";
+    var academy = "";
 
     try
     {
@@ -29,8 +32,11 @@
                 {
                     payToken = item.Value;
                     conersationId = Request.Query["conversationId"].ToString();
+                    email = Request.Query["email"].ToString();
+                    productName = Request.Query["productName"].ToString();
+                    academy = Request.Query["academy"].ToString();
 
-                    var url = "https://fsnetwebapi.azurewebsites.net/api/v1/payment/FetchPayment/" + payToken;
+                    var url = "https://fsnetwebapi.azurewebsites.net/api/v1/payment/FetchPaymentSubscription/" + payToken+"/"+ email+"/"+productName+"/"+academy;
 
 
 
@@ -39,7 +45,7 @@
 
                     if (!httpResponse.IsSuccessStatusCode)
                     {
-                        throw new Exception("Cannot retrieve tasks");
+                        throw new Exception("Cannot retrieve payment result :" + payToken);
                     }
 
                     var content = await httpResponse.Content.ReadAsStringAsync();
@@ -48,7 +54,7 @@
                     if (paymentCheckResponse.success == true)
                     {
                         msg = "İşlem başarılı teşekkür ederiz.";
-                        paymentId = paymentCheckResponse.paymentId;
+                        paymentId = paymentCheckResponse.referenceCode;
                     }
                     else
                     {
@@ -58,14 +64,14 @@
 
                     client.Dispose();
                 }
-            
+
             }
         }
-       
 
 
-       
-        
+
+
+
 
     }
     catch (Exception e)
@@ -90,6 +96,6 @@
     <p>Ödeme İşlemi Takip No:  <span id="msg">@paymentId</span></p>
     <p>@error</p>
     
-    
-    <button class="btn-primary" onclick="Go();">Tamam</button>
+
+        <button class="btn-primary" onclick="Go();">Tamam</button>
 </div>
