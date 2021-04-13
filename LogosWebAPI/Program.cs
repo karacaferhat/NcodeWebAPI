@@ -13,7 +13,8 @@ using Microsoft.Extensions.Logging;
 
 namespace NCodeWebAPI
 {
-    public class Program
+
+    public class Program 
     {
         public static async Task Main(string[] args)
         {
