@@ -33,9 +33,20 @@ namespace NCodeWebAPI.Services
                 msg.Subject = subject;
                 msg.Body = body;
                 msg.IsBodyHtml = true;
+                try { 
+                  _smtpClient.Send(msg);
+                }
+                catch(Exception ec)
+                {
+                    return new MailResponse
+                    {
+                        Success = false,
+                        Error = ec.Message
+                    };
+                }
+              
 
-
-                await Task.Run(() => _smtpClient.SendAsync(msg, null));
+              //  await Task.Run(() => _smtpClient.Send(msg, null));
 
                 return new MailResponse
                 {
